@@ -10,6 +10,7 @@ import io.dropwizard.jersey.sessions.Session;
 // For a Java class to be eligible to receive ANY requests
 // it must be annotated with at least @Path
 @Path("")
+@Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class HelloWorldController {
 
