@@ -14,4 +14,6 @@ CREATE TABLE tags (
   tagName VARCHAR(255),
 
   PRIMARY KEY (tagID)
+
+
 );

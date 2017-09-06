@@ -1,5 +1,6 @@
 package dao;
 
+import generated.tables.records.ReceiptsRecord;
 import generated.tables.records.TagsRecord;
 import org.jooq.Configuration;
 import org.jooq.DSLContext;
@@ -28,31 +29,40 @@ public class TagDao {
     public void deleteRecord(String tagName, Integer receiptID){
        dsl.deleteFrom(TAGS)
                .where(TAGS.TAGNAME.eq(tagName))
-               .and(TAGS.RECEIPTID.eq(receiptID));
+               .and(TAGS.RECEIPTID.eq(receiptID)).execute();
     }
 
     public Integer insert(String tagName, int receiptID) {
-        System.out.println("insert tag");
+        //System.out.println("insert tag");
         if (dsl.select().from(RECEIPTS)
                 .where(RECEIPTS.ID.eq(receiptID))
                 .fetch().size() > 0) {
-            System.out.println("receipt exists");
+            //System.out.println("receipt exists");
             TagsRecord tagsRecord = dsl
                     .insertInto(TAGS, TAGS.TAGNAME, TAGS.RECEIPTID)
                     .values(tagName, receiptID)
-                    .returning()
+                    .returning(TAGS.TAGID)
                     .fetchOne();
-            System.out.println("tag created");
+            //System.out.println("tag created");
             checkState(tagsRecord != null && tagsRecord.getTagid() != null, "Insert failed");
 
             return tagsRecord.getTagid();
         }
-        System.out.println("Receipt doesnt exists");
+        //System.out.println("Receipt doesnt exists");
         return null;
     }
 
     public List<TagsRecord> getAllTags() {
         return dsl.selectFrom(TAGS).fetch();
+        //return dsl.selectFrom(TAGS).fetch();
+    }
+
+    public List<ReceiptsRecord> getAllReceiptsByTags(String tagName) {
+        return dsl.select()
+                  .from(RECEIPTS)
+                  .join(TAGS)
+                  .on(RECEIPTS.ID.eq(TAGS.RECEIPTID).and(TAGS.TAGNAME.equal(tagName)))
+                  .fetchInto(RECEIPTS);
         //return dsl.selectFrom(TAGS).fetch();
     }
 }
