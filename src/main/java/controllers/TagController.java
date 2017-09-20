@@ -10,6 +10,7 @@ import org.jooq.DSLContext;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -19,6 +20,7 @@ import static java.util.stream.Collectors.toList;
 @Produces(MediaType.APPLICATION_JSON)
 public class TagController {
     final TagDao tags;
+
     //DSLContext dsl;
 
     public TagController(TagDao tags) {
@@ -53,9 +55,13 @@ public class TagController {
     @GET
     @Path("/{tag}")
     public List<ReceiptResponse> getReceiptsByTag(@PathParam("tag") String tagName) {
-        List<ReceiptsRecord> receiptRecordsByTag = tags.getAllReceiptsByTags(tagName);
-        return receiptRecordsByTag.stream().map(ReceiptResponse::new).collect(toList());
+        List<ReceiptsRecord> receiptRecords = tags.getAllReceiptsByTags(tagName);
 
+        List<ReceiptResponse> receiptResponses= new ArrayList<ReceiptResponse>();
+        for (int i = 0; i<receiptRecords.size();i++) {
+            receiptResponses.add(new ReceiptResponse(receiptRecords.get(i), tags.getTagsByReceipt(receiptRecords.get(i).getId()).stream().map(TagsRecord::getTagname).collect(toList())));
+        }
+        return receiptResponses;
     }
 
 }
